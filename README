@@ -1,2 +1,54 @@
 - The Parsl and Python versions need to be exactly the same inside and outside the container
 - The Parsl PODs continue to run after the workflow is completed unless you add `parsl.dfk().cleanup()`
+- The works in minkube but not in devinfra1. See error below. 
+```
+
+1739288420.684027 2025-02-11 15:40:20 MainProcess-284201 JobStatusPoller-Timer-Thread-23058288464896-23058275395328 parsl.dataflow.dflow:342 handle_exec_update INFO: Task 0 try 0 failed with exception of type BadStateException
+1739288420.684547 2025-02-11 15:40:20 MainProcess-284201 JobStatusPoller-Timer-Thread-23058288464896-23058275395328 parsl.dataflow.dflow:388 handle_exec_update ERROR: Task 0 failed after 0 retry attempts
+Traceback (most recent call last):
+  File "/home/alvaro/miniconda3/lib/python3.12/site-packages/parsl/dataflow/dflow.py", line 339, in handle_exec_update
+    res = self._unwrap_remote_exception_wrapper(future)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/alvaro/miniconda3/lib/python3.12/site-packages/parsl/dataflow/dflow.py", line 601, in _unwrap_remote_exception_wrapper
+    result = future.result()
+             ^^^^^^^^^^^^^^^
+  File "/home/alvaro/miniconda3/lib/python3.12/concurrent/futures/_base.py", line 449, in result
+    return self.__get_result()
+           ^^^^^^^^^^^^^^^^^^^
+  File "/home/alvaro/miniconda3/lib/python3.12/concurrent/futures/_base.py", line 401, in __get_result
+    raise self._exception
+parsl.executors.errors.BadStateException: Executor k8s_executor failed due to: Error 1:
+	Failed to start block 0: (403)
+Reason: Forbidden
+HTTP response headers: HTTPHeaderDict({'audit-id': 'ed460570-0f8b-4156-a84a-4c0431acbbe7', 'cache-control': 'no-cache, private', 'content-type': 'application/json', 'x-content-type-options': 'nosniff', 'x-kubernetes-pf-flowschema-uid': 'adbbdef3-aa33-41b6-810c-dbc0c75c49cd', 'x-kubernetes-pf-prioritylevel-uid': '201aafe3-2c6d-4e54-a837-32272860857c', 'content-length': '266', 'date': 'Tue, 11 Feb 2025 15:40:15 GMT', 'x-envoy-upstream-service-time': '5', 'server': 'envoy'})
+HTTP response body: {"kind":"Status","apiVersion":"v1","metadata":{},"status":"Failure","message":"pods is forbidden: User \"system:anonymous\" cannot create resource \"pods\" in API group \"\" in the namespace \"pw-qa-test\"","reason":"Forbidden","details":{"kind":"pods"},"code":403}
+
+
+Error 2:
+	Failed to start block 1: (403)
+Reason: Forbidden
+HTTP response headers: HTTPHeaderDict({'audit-id': 'fef877e0-a998-4daa-800b-370f46d4742f', 'cache-control': 'no-cache, private', 'content-type': 'application/json', 'x-content-type-options': 'nosniff', 'x-kubernetes-pf-flowschema-uid': 'adbbdef3-aa33-41b6-810c-dbc0c75c49cd', 'x-kubernetes-pf-prioritylevel-uid': '201aafe3-2c6d-4e54-a837-32272860857c', 'content-length': '266', 'date': 'Tue, 11 Feb 2025 15:40:15 GMT', 'x-envoy-upstream-service-time': '4', 'server': 'envoy'})
+HTTP response body: {"kind":"Status","apiVersion":"v1","metadata":{},"status":"Failure","message":"pods is forbidden: User \"system:anonymous\" cannot create resource \"pods\" in API group \"\" in the namespace \"pw-qa-test\"","reason":"Forbidden","details":{"kind":"pods"},"code":403}
+
+
+Error 3:
+	Failed to start block 2: (403)
+Reason: Forbidden
+HTTP response headers: HTTPHeaderDict({'audit-id': 'c0e85818-a1f7-490b-b0e8-ec8f74495389', 'cache-control': 'no-cache, private', 'content-type': 'application/json', 'x-content-type-options': 'nosniff', 'x-kubernetes-pf-flowschema-uid': 'adbbdef3-aa33-41b6-810c-dbc0c75c49cd', 'x-kubernetes-pf-prioritylevel-uid': '201aafe3-2c6d-4e54-a837-32272860857c', 'content-length': '266', 'date': 'Tue, 11 Feb 2025 15:40:15 GMT', 'x-envoy-upstream-service-time': '4', 'server': 'envoy'})
+HTTP response body: {"kind":"Status","apiVersion":"v1","metadata":{},"status":"Failure","message":"pods is forbidden: User \"system:anonymous\" cannot create resource \"pods\" in API group \"\" in the namespace \"pw-qa-test\"","reason":"Forbidden","details":{"kind":"pods"},"code":403}
+
+
+Error 4:
+	Failed to start block 3: (403)
+Reason: Forbidden
+HTTP response headers: HTTPHeaderDict({'audit-id': 'a4baf1f1-cbd3-49e3-af1d-0bec267d0324', 'cache-control': 'no-cache, private', 'content-type': 'application/json', 'x-content-type-options': 'nosniff', 'x-kubernetes-pf-flowschema-uid': 'adbbdef3-aa33-41b6-810c-dbc0c75c49cd', 'x-kubernetes-pf-prioritylevel-uid': '201aafe3-2c6d-4e54-a837-32272860857c', 'content-length': '266', 'date': 'Tue, 11 Feb 2025 15:40:15 GMT', 'x-envoy-upstream-service-time': '4', 'server': 'envoy'})
+HTTP response body: {"kind":"Status","apiVersion":"v1","metadata":{},"status":"Failure","message":"pods is forbidden: User \"system:anonymous\" cannot create resource \"pods\" in API group \"\" in the namespace \"pw-qa-test\"","reason":"Forbidden","details":{"kind":"pods"},"code":403}
+
+
+Error 5:
+	Failed to start block 4: (403)
+Reason: Forbidden
+HTTP response headers: HTTPHeaderDict({'audit-id': '8788c2ef-49c6-4b73-a7db-47dcb40ae572', 'cache-control': 'no-cache, private', 'content-type': 'application/json', 'x-content-type-options': 'nosniff', 'x-kubernetes-pf-flowschema-uid': 'adbbdef3-aa33-41b6-810c-dbc0c75c49cd', 'x-kubernetes-pf-prioritylevel-uid': '201aafe3-2c6d-4e54-a837-32272860857c', 'content-length': '266', 'date': 'Tue, 11 Feb 2025 15:40:15 GMT', 'x-envoy-upstream-service-time': '5', 'server': 'envoy'})
+HTTP response body: {"kind":"Status","apiVersion":"v1","metadata":{},"status":"Failure","message":"pods is forbidden: User \"system:anonymous\" cannot create resource \"pods\" in API group \"\" in the namespace \"pw-qa-test\"","reason":"Forbidden","details":{"kind":"pods"},"code":403}
+
+```
