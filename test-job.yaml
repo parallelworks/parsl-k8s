@@ -1,0 +1,14 @@
+apiVersion: batch/v1 # submit with kubectl apply -f test-job.yaml
+kind: Job
+metadata:
+  name: parsl-test-job
+  namespace: pw-qa-test  # Use the same namespace as in your Parsl script
+spec:
+  template:
+    spec:
+      containers:
+      - name: parsl-test-container
+        image: avidalto/parsl-container:latest
+        command: ["python", "-c", "print('Hello, Parsl!')"]
+      restartPolicy: Never
+  backoffLimit: 4
