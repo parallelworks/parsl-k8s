@@ -1,2 +1,2 @@
 - The Parsl and Python versions need to be exactly the same inside and outside the container
-- The Parsl PODs continue to run after the workflow is completed
+- The Parsl PODs continue to run after the workflow is completed unless you add `parsl.dfk().cleanup()`

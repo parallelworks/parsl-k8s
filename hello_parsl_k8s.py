@@ -28,3 +28,4 @@ def hello():
 if __name__ == "__main__":
     future = hello()
     print(future.result())  # Should print "Hello, Parsl!"
+    parsl.dfk().cleanup()
