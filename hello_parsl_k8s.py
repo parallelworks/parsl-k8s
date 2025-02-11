@@ -9,6 +9,7 @@ config = Config(
         HighThroughputExecutor(
             label="k8s_executor",
             provider = KubernetesProvider(
+                namespace = "pw-qa-test",
                 image = "avidalto/parsl-container:latest"
             )
         )
