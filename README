@@ -1,6 +1,6 @@
 - The Parsl and Python versions need to be exactly the same inside and outside the container
 - The Parsl PODs continue to run after the workflow is completed unless you add `parsl.dfk().cleanup()`
-- The works in minkube but not in devinfra1. See error below. 
+- To avoid the error below run the `hello_parsl_k8s.py`script from within a pod. For example, use: `kubectl run parsl-shell --rm -it -n pw-qa-test --image=avidalto/parsl-container:latest -- bash`
 ```
 
 1739288420.684027 2025-02-11 15:40:20 MainProcess-284201 JobStatusPoller-Timer-Thread-23058288464896-23058275395328 parsl.dataflow.dflow:342 handle_exec_update INFO: Task 0 try 0 failed with exception of type BadStateException
