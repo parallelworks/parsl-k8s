@@ -6,7 +6,7 @@ jobs:
     steps:
       - name: Authenticating
         run: |
-          pw kube auth devinfra1
+          pw kube auth "${{ inputs.pwrl_host.resource }}"
       - name: Input Processing
         run: |
           job_number=$(pwd | rev | cut -d "/" -f1 | rev)
