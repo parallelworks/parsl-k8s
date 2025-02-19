@@ -1,5 +1,6 @@
 - The Parsl and Python versions need to be exactly the same inside and outside the container
 - The Parsl PODs continue to run after the workflow is completed unless you add `parsl.dfk().cleanup()`
+- To prevent `OOMKilled` errors increase the default memory requirements in the parsl config.
 - To avoid the error below run the `hello_parsl_k8s.py`script from within a pod. For example, use: `kubectl run parsl-shell --rm -it -n pw-qa-test --image=avidalto/parsl-container:latest -- bash`
 ```
 
