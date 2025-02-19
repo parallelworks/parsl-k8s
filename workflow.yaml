@@ -1,0 +1,85 @@
+permissions:
+  - '*'
+
+jobs:
+  main:
+    steps:
+      - name: Authenticating
+        run: |
+          pw kube auth devinfra1
+      - name: Input Processing
+        run: |
+          job_number=$(pwd | rev | cut -d "/" -f1 | rev)
+          workflow_name=$(pwd | rev | cut -d "/" -f2 | rev)
+          pod_name="${PW_USER}-${workflow_name}-${job_number}"
+          remote_workdir="/pw/jobs/${workflow_name}/${job_number}"
+          echo "job_number=${job_number}" | tee -a $OUTPUTS
+          echo "workflow_name=${workflow_name}" | tee -a $OUTPUTS
+          echo "pod_name=${pod_name}" | tee -a $OUTPUTS
+          echo "remote_workdir=${remote_workdir}" | tee -a $OUTPUTS
+      - name: Starting Main Pod
+        env: 
+          pod_name: "${{ needs.main.outputs.pod_name }}"
+          docker_image: "${{ inputs.parsl.docker_image }}"
+          k8s_namespace: "${{ inputs.pwrl_host.k8s_namespace }}"
+        run: |
+          kubectl run ${pod_name} -n ${k8s_namespace} --image=${docker_image} --restart=Never -- sleep infinity
+          echo "Waiting for pod ${pod_name} to be ready..."
+          kubectl wait --for=condition=Ready pod/${pod_name} -n ${k8s_namespace} --timeout=120s
+      - name: Copying Job Directory to Pod
+        env: 
+          pod_name: "${{ needs.main.outputs.pod_name }}"
+          k8s_namespace: "${{ inputs.pwrl_host.k8s_namespace }}"
+          remote_workdir: "${{ needs.main.outputs.remote_workdir }}"
+        run: |
+          # Create target directory inside the pod
+          kubectl exec ${pod_name} -n ${k8s_namespace} -- mkdir -p ${remote_workdir}
+          # Copy working directory into the pod
+          kubectl cp . ${pod_name}:${remote_workdir} -n ${k8s_namespace}
+      - name: Running Parsl Script
+        env: 
+          pod_name: "${{ needs.main.outputs.pod_name }}"
+          k8s_namespace: "${{ inputs.pwrl_host.k8s_namespace }}"
+          remote_workdir: "${{ needs.main.outputs.remote_workdir }}"
+        run: |
+          kubectl exec ${pod_name} -n ${k8s_namespace} -- python ${remote_workdir}/main.py
+        cleanup: |
+          # Wait 10 seconds and then check if the pod is still terminating
+          echo "Waiting 10 seconds for graceful termination..."
+          sleep 10
+          # Check if the pod is still running or terminating
+          pod_status=$(kubectl get pod ${pod_name} -n ${k8s_namespace} -o jsonpath='{.status.phase}')
+          # Force delete the pod if it's still running or terminating
+          if [[ "$pod_status" == "Running" || "$pod_status" == "Terminating" ]]; then
+            echo "Pod is still ${pod_status}. Force deleting pod..."
+            kubectl delete pod ${pod_name} -n ${k8s_namespace} --grace-period=0 --force
+          else
+            echo "Pod terminated gracefully."
+          fi
+
+
+
+
+'on':
+  execute:
+    inputs:
+      pwrl_host:
+        type: group
+        label: Workflow Target
+        items:
+          resource:
+            label: Cluster Name
+            type: string
+            default: devinfra1
+          k8s_namespace:
+            label: Cluster K8s Namespace
+            type: string
+            default: pw-qa-test
+      parsl:
+        type: group
+        label: Parsl Inputs
+        items:
+          docker_image:
+            label: Docker Image
+            type: string
+            default: avidalto/parsl-container:latest
